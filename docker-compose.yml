@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # IoT Server LAN Service
+  iot-server:
+    build: .
+    container_name: iot-server-lan
+    ports:
+      - "8080:8080"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8080
+      - SHELF_ID=SHELF001
+      - EMPLOYEE_ID=EMP123
+    volumes:
+      # Mount thư mục hiện tại để development
+      - .:/app
+      # Mount volume cho QR codes
+      - qr_data:/app/qr_codes
+    restart: unless-stopped
+    networks:
+      - iot-network
+    stdin_open: true
+    tty: true
+
+  # QR Code Generator Service (chạy một lần để tạo QR)
+  qr-generator:
+    build: .
+    container_name: qr-generator
+    environment:
+      - HOST=iot-server
+      - PORT=8080
+    volumes:
+      - .:/app
+      - qr_data:/app/qr_codes
+    command: python qr.py
+    depends_on:
+      - iot-server
+    networks:
+      - iot-network
+    profiles:
+      - tools
+
+# Định nghĩa volumes
+volumes:
+  qr_data:
+    driver: local
+
+# Định nghĩa networks
+networks:
+  iot-network:
+    driver: bridge

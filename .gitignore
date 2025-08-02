@@ -205,3 +205,15 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Docker
+*.log
+.docker/
+docker-compose.override.yml
+
+# QR Codes (generated files)
+*.png
+qr_codes/
+
+# Environment files
+.env

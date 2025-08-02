@@ -1,0 +1,27 @@
+# Docker Compose Override for Development
+# File này sẽ tự động được load cùng với docker-compose.yml
+# Sử dụng: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+version: '3.8'
+
+services:
+  iot-server:
+    volumes:
+      # Mount source code để hot reload
+      - .:/app
+    environment:
+      # Development environment
+      - DEBUG=1
+      - FLASK_ENV=development
+    ports:
+      # Expose thêm port cho debugging
+      - "8080:8080"
+      - "5678:5678"  # Python debugger port
+    # Override command để có thể restart dễ dàng
+    command: python simple_server.py
+    
+  qr-generator:
+    volumes:
+      - .:/app
+    environment:
+      - DEBUG=1
