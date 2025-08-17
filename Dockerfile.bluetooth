@@ -1,0 +1,24 @@
+# Dockerfile.bluetooth
+FROM python:3.8-slim
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+      bluez bluez-tools dbus libbluetooth-dev build-essential \
+      bluetooth usbutils procps && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Cài đặt PyBluez sau khi đã có thư viện hệ thống
+RUN pip install --no-cache-dir pybluez
+
+# Chép script máy chủ và script khởi động vào image
+COPY rfcomm_server.py /opt/rfcomm_server.py
+COPY test_bluetooth.py /opt/test_bluetooth.py
+COPY test_bluetooth_simple.py /opt/test_bluetooth_simple.py
+
+COPY run.sh /usr/local/bin/run-bluetooth.sh
+RUN chmod +x /usr/local/bin/run-bluetooth.sh
+
+# Khởi chạy dịch vụ Bluetooth ở chế độ RFCOMM
+ENTRYPOINT ["/usr/local/bin/run-bluetooth.sh"]

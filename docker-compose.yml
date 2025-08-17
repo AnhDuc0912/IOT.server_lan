@@ -22,6 +22,10 @@ services:
       - iot-network
     stdin_open: true
     tty: true
+    privileged: true
+    devices:
+      - /dev/rfcomm0:/dev/rfcomm0
+      - /dev/ttyUSB0:/dev/ttyUSB0
 
   # QR Code Generator Service (chạy một lần để tạo QR)
   qr-generator:
@@ -40,6 +44,22 @@ services:
       - iot-network
     profiles:
       - tools
+
+  # Bluetooth RFCOMM Server Service
+  bluetooth-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.bluetooth
+    container_name: iot-bluetooth-server
+    privileged: true
+    network_mode: host
+    volumes:
+      - .:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    profiles:
+      - bluetooth
 
 # Định nghĩa volumes
 volumes:
